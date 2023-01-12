@@ -17,14 +17,14 @@ impl Point {
 
     // a² + b² = c²
     pub fn magnitude(&self) -> f64 {
-        f64::sqrt((self.x ^ 2 + self.y ^ 2).into())
+        f64::from(self.x.pow(2) + self.y.pow(2)).sqrt()
     }
 
     // d=√((x2 – x1)² + (y2 – y1)²)
     pub fn dist(&self, p2: Point) -> f64 {
-        let dif_x_sq = (self.x - p2.x) ^ 2;
-        let dif_y_sq = (self.y - p2.y) ^ 2;
-        f64::sqrt((dif_x_sq + dif_y_sq).into())
+        let dif_x_sq = (self.x - p2.x).pow(2);
+        let dif_y_sq = (self.y - p2.y).pow(2);
+        f64::from(dif_x_sq + dif_y_sq).sqrt()
     }
 }
 
@@ -195,4 +195,3 @@ mod tests {
 
 #[allow(dead_code)]
 fn main() {}
-
