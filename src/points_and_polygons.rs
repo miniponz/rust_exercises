@@ -1,9 +1,10 @@
 // TODO: remove this when you're done with your implementation.
 #![allow(unused_variables, dead_code)]
 
-use std::{ops::Add};
+use std::f64::consts::PI;
+use std::ops::{Add, Sub};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point {
     x: i32,
     y: i32,
@@ -16,48 +17,83 @@ impl Point {
 
     // a² + b² = c²
     pub fn magnitude(&self) -> f64 {
-        f64::sqrt(x^2 + y^2)
+        f64::sqrt((self.x ^ 2 + self.y ^ 2).into())
     }
 
     // d=√((x2 – x1)² + (y2 – y1)²)
-    pub fn dist(&self, p2: Point) -> f64{
-        let dif_x_sq = (self.x - p2.x)^2;
-        let dif_y_sq = (self.y - p2.y)^2;
-        f64::sqrt(dif_x_sq + dif_y_sq)
+    pub fn dist(&self, p2: Point) -> f64 {
+        let dif_x_sq = (self.x - p2.x) ^ 2;
+        let dif_y_sq = (self.y - p2.y) ^ 2;
+        f64::sqrt((dif_x_sq + dif_y_sq).into())
     }
 }
 
 impl Add<Point> for Point {
-    type Output = Point;
+    type Output = Self;
 
     fn add(self, rhs: Point) -> Self::Output {
-        todo!()
+        Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
     }
 }
 
-pub struct Polygon (Vec<Point>);
+impl Sub<Point> for Point {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+pub struct Polygon {
+    points: Vec<Point>,
+}
 
 impl Polygon {
     pub fn new() -> Self {
-        Polygon(Vec::new())
+        Polygon { points: Vec::new() }
     }
 
     pub fn add_point(&mut self, new_point: Point) {
-        todo!()
+        self.points.push(new_point);
     }
 
     pub fn left_most_point(&mut self) -> Option<Point> {
+        self.points.iter().min_by_key(|point| point.x).copied()
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &Point> {
+        self.points.iter()
+    }
+
+    pub fn length(&self) -> f64 {
+        // not clear what this is or should be from instructions
         todo!()
     }
 }
 
 pub struct Circle {
-    circumference: f64
+    center: Point,
+    radius: i32,
 }
 
 impl Circle {
-    pub fn new(center: Point, rad: i32) -> Self {
-        todo!()
+    pub fn new(center: Point, radius: i32) -> Self {
+        Circle { center, radius }
+    }
+
+    pub fn circumference(&self) -> f64 {
+        2.0 * PI * f64::from(self.radius)
+    }
+
+    pub fn dist(&self, circle_2: Circle) -> f64 {
+        // use the method on Point to calc dist
+        self.center.dist(circle_2.center)
     }
 }
 
@@ -68,12 +104,21 @@ pub enum Shape {
 
 impl From<Polygon> for Shape {
     fn from(value: Polygon) -> Self {
-        Shape::Polygon(Polygon)
+        Shape::Polygon(value)
     }
 }
 impl From<Circle> for Shape {
     fn from(value: Circle) -> Self {
-        Shape::Circle(Circle)
+        Shape::Circle(value)
+    }
+}
+
+impl Shape {
+    pub fn circumference(&self) -> f64 {
+        match self {
+            Shape::Circle(cir) => cir.circumference(),
+            Shape::Polygon(pol) => pol.length(),
+        }
     }
 }
 
@@ -125,7 +170,7 @@ mod tests {
         poly.add_point(p1);
         poly.add_point(p2);
 
-        let points = poly.0.iter().cloned().collect::<Vec<_>>();
+        let points = poly.iter().cloned().collect::<Vec<_>>();
         assert_eq!(points, vec![Point::new(12, 13), Point::new(16, 16)]);
     }
 
@@ -135,18 +180,19 @@ mod tests {
         poly.add_point(Point::new(12, 13));
         poly.add_point(Point::new(17, 11));
         poly.add_point(Point::new(16, 16));
-        // let shapes = vec![
-        //     Shape::from(poly),
-        //     Shape::from(Circle::new(Point::new(10, 20), 5)),
-        // ];
-        // let circumferences = shapes
-        //     .iter()
-        //     .map(Shape::circumference)
-        //     .map(round_two_digits)
-        //     .collect::<Vec<_>>();
-        // assert_eq!(circumferences, vec![15.48, 31.42]);
+        let shapes = vec![
+            Shape::from(poly),
+            Shape::from(Circle::new(Point::new(10, 20), 5)),
+        ];
+        let circumferences = shapes
+            .iter()
+            .map(Shape::circumference)
+            .map(round_two_digits)
+            .collect::<Vec<_>>();
+        assert_eq!(circumferences, vec![15.48, 31.42]);
     }
 }
 
 #[allow(dead_code)]
 fn main() {}
+
