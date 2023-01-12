@@ -1,5 +1,5 @@
 // TODO: remove this when you're done with your implementation.
-#![allow(unused_variables, dead_code)]
+// #![allow(unused_variables, dead_code)]
 
     // check that request path begins with prefix, which can include wild card
 pub fn prefix_matches(prefix: &str, request_path: &str) -> bool {
